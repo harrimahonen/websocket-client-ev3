@@ -1,3 +1,3 @@
-## Websocket-React-NodeJs server and client
+## Websocket-React client
 
-Made to send json to Lego EV3 through websocket connection
+A Websocket client done with React to communicate with ev3 brick via web interface and websockets.
