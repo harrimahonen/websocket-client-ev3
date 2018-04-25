@@ -2,25 +2,27 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-const ws = new WebSocket('ws://localhost:8887')
-    ws.onopen = function() {
-     console.log("connection open...");
-   };
+
 class App extends Component {
     constructor(){
         super()
         this.state = {
+            color: false,
+            error: false
     }
-        this.handleClick = this.handleClick.bind(this)
+            
     } 
     handleClick(cmd){
-       ws.send(JSON.stringify({
-            to: "sec-websocket-indetifier",
-            message: cmd }
-         )
-     )
+           this.ws.send(cmd)
     }
     componentDidMount(){
+    this.ws = new WebSocket('ws://localhost:8887')
+        this.ws.onmessage = e => {
+            this.setState({ color: e.data })
+            console.log("success: " + e.data)
+            console.log(this.state)}
+    this.ws.onerror = e => this.setState({ error: 'WebSocket error' })
+    this.ws.onclose = e => !e.wasClean && this.setState({ error: `WebSocket error: ${e.code} ${e.reason}` }) 
     }
   render() {
     return (
@@ -30,16 +32,24 @@ class App extends Component {
           <h1 className="App-title">Welcome to React</h1>
 
         </header>
-        <div >
+        <div style={{display: 'flex',
+            justifyContent: 'center',
+            marginTop: 25}}>
+            <div style={{
+        backgroundColor:this.state.color,
+        height:100,
+        width: 100
+            }}/>
+        </div>
         <p className="App" >
             Click on the arrows to send web socket message to server
         </p>
-        <p onClick={(e) => this.handleClick("UP")} >{String.fromCharCode(8593)}</p>
-        <p onClick={(e) => this.handleClick("LEFT")} >{String.fromCharCode(8592)}</p>
-        <p onClick={(e) => this.handleClick("RIGHT")} >{String.fromCharCode(8594)}</p>
-        <p onClick={(e) => this.handleClick("DOWN")} >{String.fromCharCode(8595)}</p>
+        <p onClick={() => this.handleClick("UP")} >{String.fromCharCode(8593)}</p>
+        <p onClick={() => this.handleClick("LEFT")} >{String.fromCharCode(8592)}</p>
+        <p onClick={() => this.handleClick("RIGHT")} >{String.fromCharCode(8594)}</p>
+        <p onClick={() => this.handleClick("DOWN")} >{String.fromCharCode(8595)}</p>
+
     </div>
-      </div>
     );
   }
 }
