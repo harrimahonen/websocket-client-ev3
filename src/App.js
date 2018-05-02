@@ -8,6 +8,7 @@ class App extends React.Component {
     this.state = {
       color: false,
       error: false,
+      ready: false,
       keyMap: {
         up: false,
         down: false,
@@ -18,14 +19,14 @@ class App extends React.Component {
     }
   }
 
-  handleClick (cmd) {
-    if (this.ws) {
+  handleClick (cmd) { // handle buttons clicks on DOM
+    if (this.state.ready) { // WebSocket online
       this.ws.send(cmd)
     }
   }
 
-  handlePress (e) {
-    if (this.ws) { // WebSocket online
+  handlePress (e) { // handle key presses : WASD keys
+    if (this.state.ready) { // WebSocket online
       let keyPosition
       if (e.type === 'keydown') {
         keyPosition = true
@@ -66,12 +67,12 @@ class App extends React.Component {
       cmd += 'LEFT'
     }
 
-    if (this.ws) {
-        if (cmd === '') {
-          this.ws.send('STOP')
-        } else {
-      this.ws.send(cmd)
-        }
+    if (this.state.ready) {
+      if (cmd === '') {
+        this.ws.send('STOP')
+      } else {
+        this.ws.send(cmd)
+      }
     }
   }
 
@@ -82,10 +83,10 @@ class App extends React.Component {
     // COMMENT ONE this.ws line
     // You need to know the EV3 IP to connect to it; wired connection default: 10.0.1.1
     this.ws = new WebSocket('ws://10.0.1.255:8887') // Use this when working with EV3 brick
-    // this.ws = new WebSocket('ws:localhost:8887') // Use this when developing locally
+    // this.ws = new WebSocket('ws://localhost:8887') // Use this when developing locally
     this.ws.onopen = e => {
       this.setState({
-        color: 'gray'
+        ready: true
       })
       console.log('WebSocket connection is ready! Current state: ')
       console.log(this.state)
@@ -94,7 +95,8 @@ class App extends React.Component {
       error: 'WebSocket error'
     })
     this.ws.onclose = e => !e.wasClean && this.setState({
-      error: `WebSocket connection closed: ${e.code} ${e.reason}`
+      error: `WebSocket connection closed: ${e.code} ${e.reason}`,
+      ready: false
     })
     this.ws.onmessage = e => {
       this.setState({...this.state, keyMap: {...this.state.keyMap}, color: e.data})
@@ -120,44 +122,43 @@ class App extends React.Component {
   }
   render () {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to EV3 Remote Client</h1>
-          <p>powered by React & WebSockets</p>
-        </header>
-        <div><p>Current color:</p></div>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          marginTop: 25
-        }}>
+      <div>
+        <div className="App" style={{minHeight: 1000}}>
+          <header className="App-header">
+            <img src={logo} className="App-logo" alt="logo" />
+            <h1 className="App-title">Welcome to EV3 Remote Client</h1>
+            <p>powered by React & WebSockets</p>
+          </header>
+          <div><p>Current color:</p></div>
           <div style={{
-            backgroundColor: this.state.color,
-            height: 200,
-            width: 200,
-            border: 'solid 2px black'
-          }}/>
-        </div>
-        <p>
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 25
+          }}>
+            <div style={{
+              backgroundColor: this.state.color,
+              height: 200,
+              width: 200,
+              border: 'solid 2px black'
+            }}/>
+          </div>
+          <p>
             Control EV3 with arrows or with WASD
-        </p>
-        <button onMouseDown={(e) => this.handleClick('UP')} onMouseUp={(e) => this.handleClick('STOP')} >{String.fromCharCode(8593)}</button>
-        <button onMouseDown={(e) => this.handleClick('DOWN')} onMouseUp={(e) => this.handleClick('STOP')} >{String.fromCharCode(8595)}</button>
-        <button onMouseDown={(e) => this.handleClick('LEFT')} onMouseUp={(e) => this.handleClick('STOP')} >{String.fromCharCode(8592)}</button>
-        <button onMouseDown={(e) => this.handleClick('RIGHT')} onMouseUp={(e) => this.handleClick('STOP')} >{String.fromCharCode(8594)}</button>
-        <button onMouseDown={(e) => this.handleClick('ESCAPE')} >Escape</button>
-        <button onMouseDown={(e) => this.handleClick('SABOTAGE')} >Sabotage</button>
+          </p>
+          <button onMouseDown={(e) => this.handleClick('UP')} onMouseUp={(e) => this.handleClick('STOP')} >{String.fromCharCode(8593)}</button>
+          <button onMouseDown={(e) => this.handleClick('DOWN')} onMouseUp={(e) => this.handleClick('STOP')} >{String.fromCharCode(8595)}</button>
+          <button onMouseDown={(e) => this.handleClick('LEFT')} onMouseUp={(e) => this.handleClick('STOP')} >{String.fromCharCode(8592)}</button>
+          <button onMouseDown={(e) => this.handleClick('RIGHT')} onMouseUp={(e) => this.handleClick('STOP')} >{String.fromCharCode(8594)}</button>
+          <button onMouseDown={(e) => this.handleClick('ESCAPE')} >Escape</button>
+          <button onMouseDown={(e) => this.handleClick('SABOTAGE')} >Sabotage</button>
+        </div>
         <footer style={{
-          position: 'absolute',
-          marginTop: '425px',
-          marginBottom: '25pxpx',
-          marginLeft: 'auto',
-          marginRight: 'auto',
+          marginBottom: '25px',
           width: '100%',
-          bottom: 0}}>Harri Mähönen & Rattopojat v2.0</footer>
-      </div>
-    )
+          display: 'flex'}}>
+          <p style={{margin: '0 auto'}}>Harri Mähönen & Rattopojat v2.0</p>
+        </footer>
+      </div>)
   }
 }
 
