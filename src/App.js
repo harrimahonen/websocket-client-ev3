@@ -67,7 +67,11 @@ class App extends React.Component {
     }
 
     if (this.ws) {
+        if (cmd === '') {
+          this.ws.send('STOP')
+        } else {
       this.ws.send(cmd)
+        }
     }
   }
 
@@ -77,8 +81,8 @@ class App extends React.Component {
 
     // COMMENT ONE this.ws line
     // You need to know the EV3 IP to connect to it; wired connection default: 10.0.1.1
-    // this.ws = new WebSocket('ws://10.0.1.1:8887') // Use this when working with EV3 brick
-    this.ws = new WebSocket('ws:localhost:8887') // Use this when developing locally
+    this.ws = new WebSocket('ws://10.0.1.255:8887') // Use this when working with EV3 brick
+    // this.ws = new WebSocket('ws:localhost:8887') // Use this when developing locally
     this.ws.onopen = e => {
       this.setState({
         color: 'gray'
@@ -142,10 +146,14 @@ class App extends React.Component {
         <button onMouseDown={(e) => this.handleClick('DOWN')} onMouseUp={(e) => this.handleClick('STOP')} >{String.fromCharCode(8595)}</button>
         <button onMouseDown={(e) => this.handleClick('LEFT')} onMouseUp={(e) => this.handleClick('STOP')} >{String.fromCharCode(8592)}</button>
         <button onMouseDown={(e) => this.handleClick('RIGHT')} onMouseUp={(e) => this.handleClick('STOP')} >{String.fromCharCode(8594)}</button>
-        <button onMouseDown={(e) => this.handleClick('SABOTAGE')} >SABOTAGE</button>
+        <button onMouseDown={(e) => this.handleClick('ESCAPE')} >Escape</button>
+        <button onMouseDown={(e) => this.handleClick('SABOTAGE')} >Sabotage</button>
         <footer style={{
           position: 'absolute',
-          margin: '25px auto',
+          marginTop: '425px',
+          marginBottom: '25pxpx',
+          marginLeft: 'auto',
+          marginRight: 'auto',
           width: '100%',
           bottom: 0}}>Harri Mähönen & Rattopojat v2.0</footer>
       </div>
