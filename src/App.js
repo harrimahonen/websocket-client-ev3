@@ -6,7 +6,7 @@ class App extends React.Component {
   constructor () {
     super()
     this.state = {
-      color: false,
+      color: '',
       error: false,
       ready: false,
       keyMap: {
@@ -33,6 +33,8 @@ class App extends React.Component {
       } else if (e.type === 'keyup') {
         keyPosition = false
       }
+
+      // updated state when a key is pressed
       switch (e.key) {
         case 'w':
           this.setState({...this.state, keyMap: {...this.state.keyMap, up: keyPosition}})
@@ -53,7 +55,11 @@ class App extends React.Component {
   }
 
   handleWebSocketOutMessage () {
+    // compose a message to WebSocket, pressing a key will concat the key direction to the String cmd
+    //
+    // on empty message, issue a STOP command
     let cmd = ''
+
     if (this.state.keyMap.down === true) {
       cmd += 'DOWN'
     }
@@ -67,7 +73,7 @@ class App extends React.Component {
       cmd += 'LEFT'
     }
 
-    if (this.state.ready) {
+    if (this.state.ready) { // Check ready state of WebSocket
       if (cmd === '') {
         this.ws.send('STOP')
       } else {
@@ -82,6 +88,8 @@ class App extends React.Component {
 
     // COMMENT ONE this.ws line
     // You need to know the EV3 IP to connect to it; wired connection default: 10.0.1.1
+    //
+    //
     this.ws = new WebSocket('ws://10.0.1.255:8887') // Use this when working with EV3 brick
     // this.ws = new WebSocket('ws://localhost:8887') // Use this when developing locally
     this.ws.onopen = e => {
@@ -102,24 +110,17 @@ class App extends React.Component {
       this.setState({...this.state, keyMap: {...this.state.keyMap}, color: e.data})
     }
   }
+
+  // on state change compare state.keyMap childs and if there was a change then send message to WebSocket
   componentDidUpdate (props, prevState) {
-    if (prevState.keyMap.up !== this.state.keyMap.up) {
-      console.log(this.state)
-      this.handleWebSocketOutMessage()
-    }
-    if (prevState.keyMap.down !== this.state.keyMap.down) {
-      console.log(this.state)
-      this.handleWebSocketOutMessage()
-    }
-    if (prevState.keyMap.right !== this.state.keyMap.right) {
-      console.log(this.state)
-      this.handleWebSocketOutMessage()
-    }
-    if (prevState.keyMap.left !== this.state.keyMap.left) {
+    let prevKey = prevState.keyMap
+    let currentKey = this.state.keyMap
+    if (prevKey.up !== currentKey.up || prevKey.down !== currentKey.down || prevKey.right !== currentKey.right || prevKey.left !== currentKey.left) {
       console.log(this.state)
       this.handleWebSocketOutMessage()
     }
   }
+
   render () {
     return (
       <div>
