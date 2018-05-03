@@ -90,7 +90,7 @@ class App extends React.Component {
     // You need to know the EV3 IP to connect to it; wired connection default: 10.0.1.1
     //
     //
-    this.ws = new WebSocket('ws://10.0.1.255:8887') // Use this when working with EV3 brick
+    this.ws = new WebSocket('ws://10.0.1.1:8887') // Use this when working with EV3 brick
     // this.ws = new WebSocket('ws://localhost:8887') // Use this when developing locally
     this.ws.onopen = e => {
       this.setState({
